@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NLP & Intent Matching System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #e0e7ff 100%);
+        }
+        .animate-pulse-slow {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .backdrop-blur {
+            backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <div id="app" class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="flex items-center justify-center space-x-3 mb-4">
+                <div class="p-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl text-white">
+                    <i data-lucide="brain" class="h-8 w-8"></i>
+                </div>
+                <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    NLP Intent Matching System
+                </h1>
+            </div>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                Advanced natural language processing for automation commands. Parse intents, extract parameters, 
+                and match commands across multiple contexts with real-time confidence scoring.
+            </p>
+        </div>
+
+        <!-- Status Bar -->
+        <div id="status-bar" class="mb-6 p-4 bg-white/70 backdrop-blur rounded-xl border border-white/20 shadow-sm hidden">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="h-3 w-3 bg-green-500 rounded-full animate-pulse-slow"></div>
+                    <span class="text-sm font-medium text-gray-700">
+                        Last processed: <span id="last-intent" class="font-mono"></span>
+                    </span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-gray-600">Confidence:</span>
+                    <span id="confidence-score" class="text-sm font-bold text-green-600"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="mb-8">
+            <div class="md:hidden mb-4">
+                <button id="mobile-menu-btn" class="flex items-center space-x-2 p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+                    <i data-lucide="menu" class="h-5 w-5"></i>
+                    <span class="font-medium">Menu</span>
+                </button>
+            </div>
+
+            <div id="tab-navigation" class="hidden md:block">
+                <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 p-2 bg-white/70 backdrop-blur rounded-xl border border-white/20 shadow-sm">
+                    <button data-tab="parser" class="tab-btn flex items-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-blue-600 bg-blue-50 shadow-sm">
+                        <i data-lucide="brain" class="h-5 w-5"></i>
+                        <span>Intent Parser</span>
+                    </button>
+                    <button data-tab="contexts" class="tab-btn flex items-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-gray-600 hover:text-gray-900 hover:bg-white/50">
+                        <i data-lucide="book-open" class="h-5 w-5"></i>
+                        <span>Contexts</span>
+                    </button>
+                    <button data-tab="history" class="tab-btn flex items-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-gray-600 hover:text-gray-900 hover:bg-white/50">
+                        <i data-lucide="command" class="h-5 w-5"></i>
+                        <span>History</span>
+                        <span id="history-count" class="px-2 py-1 bg-gray-200 text-gray-700 text-xs font-bold rounded-full hidden">0</span>
+                    </button>
+                    <button data-tab="analytics" class="tab-btn flex items-center space-x-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-gray-600 hover:text-gray-900 hover:bg-white/50">
+                        <i data-lucide="bar-chart-3" class="h-5 w-5"></i>
+                        <span>Analytics</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="min-h-[600px]">
+            <!-- Intent Parser Tab -->
+            <div id="parser-tab" class="tab-content">
+                <div class="space-y-6">
+                    <!-- Input Section -->
+                    <div class="relative">
+                        <div class="relative">
+                            <i data-lucide="search" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5"></i>
+                            <input
+                                type="text"
+                                id="command-input"
+                                placeholder="Enter infrastructure command (e.g., 'restart kafka node on server-01', 'clean disks on storage-02')"
+                                class="w-full pl-12 pr-4 py-4 text-lg border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-50 transition-all duration-200 placeholder-gray-400"
+                            />
+                            <div id="processing-spinner" class="absolute right-4 top-1/2 transform -translate-y-1/2 hidden">
+                                <div class="animate-spin rounded-full h-5 w-5 border-2 border-blue-500 border-t-transparent"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div id="results-section"></div>
+                </div>
+            </div>
+
+            <!-- Other tabs content will be loaded dynamically -->
+            <div id="contexts-tab" class="tab-content hidden"></div>
+            <div id="history-tab" class="tab-content hidden"></div>
+            <div id="analytics-tab" class="tab-content hidden"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-12 text-center">
+            <div class="inline-flex items-center space-x-2 px-4 py-2 bg-white/50 backdrop-blur rounded-full border border-white/20">
+                <div class="h-2 w-2 bg-green-500 rounded-full animate-pulse-slow"></div>
+                <span class="text-sm text-gray-600">
+                    NLP Engine Active • <span id="commands-processed">0</span> commands processed
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
